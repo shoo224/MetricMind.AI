@@ -1,0 +1,68 @@
+# Dataset description for the OS-Metrics / PTS files. Everything dataset-specific lives here so the
+# loader code stays generic. Facts below were verified by inspecting the files (see README);
+# items marked "inferred" are NOT stated by the dataset.
+
+[format]
+timestamp_column = "Time"
+value_column = "Value"
+timestamp_format = "%Y-%m-%d %H:%M:%S"   # timezone-naive; verified to be UTC (see events.timezone)
+expected_interval_seconds = 15
+# Value used by the data source to flag a failed probe (appears only in network response times).
+missing_sentinels = [-99999.0]
+
+[[metrics]]
+name = "cpu_usage"
+file = "cpu_usage.csv"
+category = "cpu"
+unit = "percent (inferred)"
+description = "CPU utilisation of the monitored server."
+
+[[metrics]]
+name = "memory_usage"
+file = "memory_usage.csv"
+category = "memory"
+unit = "percent (inferred)"
+description = "Memory utilisation as a percentage of total RAM."
+
+[[metrics]]
+name = "memory_used"
+file = "memory_used.csv"
+category = "memory"
+unit = "MB (inferred)"
+description = "Absolute memory in use. Proportional to memory_usage (ratio ~77, correlation 1.0)."
+
+[[metrics]]
+name = "response_time_a"
+file = "network_response_time_a.csv"
+category = "network"
+unit = "ms (inferred)"
+description = "Network response time of probe target A."
+
+[[metrics]]
+name = "response_time_b"
+file = "network_response_time_b.csv"
+category = "network"
+unit = "ms (inferred)"
+description = "Network response time of probe target B."
+
+[[metrics]]
+name = "response_time_diff"
+file = "network_response_time_diff.csv"
+category = "network"
+unit = "ms (inferred)"
+description = "response_time_a - response_time_b (exact, except where a probe failed)."
+
+# Ground truth: injected fault events. start/end are ISO-8601 UTC timestamps.
+[events]
+files = [
+  "event_logs/event_logs_cpu.csv",
+  "event_logs/event_logs_memory.csv",
+  "event_logs/event_logs_network.csv",
+]
+id_column = "id"
+category_column = "type"
+mode_column = "mode"
+intensity_column = "intensity"
+start_column = "start_time"
+end_column = "end_time"
+timezone = "UTC"        # metric timestamps are expressed in this timezone
